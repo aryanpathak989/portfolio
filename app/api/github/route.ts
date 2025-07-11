@@ -9,7 +9,7 @@ export async function GET() {
   const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
 
   if (!GITHUB_TOKEN) {
-    return NextResponse.json({ error: 'GitHub token not found' }, { status: 500 });
+    return NextResponse.json({ error: 'GitHub token not found',value: process.env.GITHUB_TOKEN }, { status: 500 });
   }
 
   const query = `
