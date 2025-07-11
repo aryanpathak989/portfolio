@@ -1,0 +1,4 @@
+name = "portfolio"
+type = "webpack"
+compatibility_flags = ["node_compact"]
+
