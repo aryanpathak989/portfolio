@@ -33,6 +33,7 @@ import {
   Users,
   BookOpen,
 } from "lucide-react"
+import { toast } from "react-toastify"
 
 const techAnimations = {
   matrix: {
@@ -123,7 +124,12 @@ export default function Portfolio() {
   const [activeSection, setActiveSection] = useState("hero")
   const [darkMode, setDarkMode] = useState(true)
   const [githubData, setGithubData] = useState<GitHubData | null>(null)
+  const [firstName,setFirstName] = useState("")
+  const [email,setEmail] = useState("")
+  const [projectBudget,setProjectBudget] = useState("")
+  const [aboutProject,setAboutProject] = useState("")
   const [loading, setLoading] = useState(true)
+  const [formSubmitLoader,setFormSubmitLoader] = useState(false)
   const { scrollYProgress } = useScroll()
   const y = useTransform(scrollYProgress, [0, 1], ["0%", "30%"])
 
@@ -191,13 +197,40 @@ useEffect(() => {
     return "bg-green-400"
   }
 
-  // const getContributionIntensity = (count: number) => {
-  //   if (count === 0) return "No contributions"
-  //   if (count <= 3) return "Low activity"
-  //   if (count <= 6) return "Moderate activity"
-  //   if (count <= 9) return "High activity"
-  //   return "Very high activity"
-  // }
+  const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+  setFormSubmitLoader(true)
+
+  const res = await fetch("/api/telegram", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      firstName,
+      email,
+      projectBudget,
+      aboutProject,
+    }),
+  });
+
+  const result = await res.json();
+
+  if (result.success) {
+    toast.success("Message recieved. Aryan will soon contact you.")
+      setFormSubmitLoader(false)
+    // Optional: reset form
+    setFirstName("");
+    setEmail("");
+    setProjectBudget("");
+    setAboutProject("");
+  } else {
+    toast.warning("Message recieved. Aryan will soon contact you.")
+      setFormSubmitLoader(false)
+    console.error(result.error || result.details);
+  }
+};
+
 
   return (
     <div className={`min-h-screen transition-all duration-500 ${themeClasses}`}>
@@ -1082,9 +1115,11 @@ useEffect(() => {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <form className="space-y-4">
+                  <form className="space-y-4" onSubmit={handleSubmit}>
                     <div className="grid md:grid-cols-2 gap-4">
                       <Input
+                        value={firstName}
+                        onChange={(e)=>setFirstName(e.target.value)}
                         placeholder="Your Name"
                         className={`backdrop-blur-sm border transition-colors ${
                           darkMode
@@ -1093,6 +1128,8 @@ useEffect(() => {
                         }`}
                       />
                       <Input
+                        value={email}
+                        onChange={(e)=>setEmail(e.target.value)}
                         placeholder="Your Email"
                         type="email"
                         className={`backdrop-blur-sm border transition-colors ${
@@ -1103,6 +1140,8 @@ useEffect(() => {
                       />
                     </div>
                     <Input
+                      value={projectBudget}
+                      onChange={(e)=>setProjectBudget(e.target.value)}
                       placeholder="Project Budget (USD)"
                       className={`backdrop-blur-sm border transition-colors ${
                         darkMode
@@ -1111,6 +1150,8 @@ useEffect(() => {
                       }`}
                     />
                     <Textarea
+                      value={aboutProject}
+                      onChange={(e)=>setAboutProject(e.target.value)}
                       placeholder="Tell me about your project..."
                       rows={5}
                       className={`backdrop-blur-sm border transition-colors ${
@@ -1121,8 +1162,18 @@ useEffect(() => {
                     />
                     <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                       <Button className="w-full bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white">
-                        <Send className="w-4 h-4 mr-2" />
+                        {
+                          formSubmitLoader?
+                                            <div className="text-center py-8">
+                    <div className="animate-spin w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full mx-auto mb-4"></div>
+                  </div>:
+                  <p className="flex gap-2 items-center">
+                                            <Send className="w-4 h-4 mr-2" />
                         Send Project Details
+                  </p>
+
+                        }
+
                       </Button>
                     </motion.div>
                   </form>
