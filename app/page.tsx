@@ -197,39 +197,67 @@ useEffect(() => {
     return "bg-green-400"
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
+const handleSubmit = async (e: React.FormEvent) => {
   e.preventDefault();
-  setFormSubmitLoader(true)
 
-  const res = await fetch("/api/telegram", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      firstName,
-      email,
-      projectBudget,
-      aboutProject,
-    }),
-  });
+  // Basic validation
+  if (!firstName.trim()) {
+    toast.error("First name is required.");
+    return;
+  }
 
-  const result = await res.json();
+  if (!email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    toast.error("Please enter a valid email address.");
+    return;
+  }
 
-  if (result.success) {
-    toast.success("Message recieved. Aryan will soon contact you.")
-      setFormSubmitLoader(false)
-    // Optional: reset form
-    setFirstName("");
-    setEmail("");
-    setProjectBudget("");
-    setAboutProject("");
-  } else {
-    toast.warning("Message recieved. Aryan will soon contact you.")
-      setFormSubmitLoader(false)
-    console.error(result.error || result.details);
+  if (!projectBudget.trim()) {
+    toast.error("Please select or enter a project budget.");
+    return;
+  }
+
+  if (!aboutProject.trim() || aboutProject.length < 10) {
+    toast.error("Please provide more details about your project (min. 10 characters).");
+    return;
+  }
+
+  setFormSubmitLoader(true);
+
+  try {
+    const res = await fetch("/api/telegram", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        firstName,
+        email,
+        projectBudget,
+        aboutProject,
+      }),
+    });
+
+    const result = await res.json();
+
+    if (result.success) {
+      toast.success("Message received. Aryan will contact you soon.");
+      // Reset form
+      setFirstName("");
+      setEmail("");
+      setProjectBudget("");
+      setAboutProject("");
+    } else {
+      toast.warning("Message received but something went wrong.");
+      console.error(result.error || result.details);
+    }
+  } catch (err) {
+    toast.error("Something went wrong. Please try again later.");
+    console.error(err);
+  } finally {
+    setFormSubmitLoader(false);
   }
 };
+
 
 
   return (
@@ -1164,9 +1192,11 @@ useEffect(() => {
                       <Button className="w-full bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white">
                         {
                           formSubmitLoader?
-                                            <div className="text-center py-8">
-                    <div className="animate-spin w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full mx-auto mb-4"></div>
-                  </div>:
+              <div className="flex justify-center items-center h-full">
+                                            <div className="flex justify-center items-center">
+                    <div className="animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full mx-auto"></div>
+                  </div>
+              </div>:
                   <p className="flex gap-2 items-center">
                                             <Send className="w-4 h-4 mr-2" />
                         Send Project Details
