@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
- import { ToastContainer, toast } from 'react-toastify';
+ import { ToastContainer } from 'react-toastify';
 
 export const runtime = "edge";
 
@@ -20,7 +20,9 @@ export const metadata: Metadata = {
   description: "Professional freelance web and mobile app developer. I help build innovative web and mobile applications tailored to your business needs.",
   authors: [{ name: "Aryan Pathak" }],
   keywords: "freelance developer, web app development, mobile app development, Next.js developer, freelance app developer, custom web apps, mobile apps, cloud apps, responsive web development, hourly rates, SEO optimization",
-
+    icons: {
+    icon: "/favicon.jpg", // path relative to the public directory
+  },
   // Open Graph Tags (for better social media sharing)
   openGraph: {
     title: "Create Next App | Your Name - Freelance Web & Mobile App Developer",
